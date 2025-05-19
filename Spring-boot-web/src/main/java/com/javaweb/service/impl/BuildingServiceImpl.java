@@ -5,6 +5,7 @@ import com.javaweb.converter.BuildingConverter;
 import com.javaweb.converter.BuildingSearchBuilderConverter;
 import com.javaweb.entity.BuildingEntity;
 import com.javaweb.entity.RentAreaEntity;
+import com.javaweb.utils.UploadFileUtils;
 import com.javaweb.entity.AssignmentBuildingEntity;
 import com.javaweb.entity.UserEntity;
 import com.javaweb.model.dto.AssignmentBuildingDTO;
@@ -18,10 +19,12 @@ import com.javaweb.repository.RentAreaRepository;
 import com.javaweb.repository.UserRepository;
 import com.javaweb.service.IBuildingService;
 import org.apache.catalina.User;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +43,9 @@ public class BuildingServiceImpl implements IBuildingService {
     private AssignmentBuildingRepository assignmentBuildingRepository;
     @Autowired
     private RentAreaRepository rentAreaRepository;
+    @Autowired
+    private UploadFileUtils uploadFileUtils;
+
 
     @Override
     public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest) {
@@ -57,6 +63,7 @@ public class BuildingServiceImpl implements IBuildingService {
     @Override
     public BuildingDTO createOrUpdateBuilding(BuildingDTO buildingDTO) {
         BuildingEntity buildingEntity = buildingConverter.toBuildingEntity(buildingDTO);
+        saveThumbnail(buildingDTO,buildingEntity);
         buildingEntity = buildingRepository.save(buildingEntity);
         buildingEntity.getId();
         if (buildingEntity.getId() != null) {
@@ -100,5 +107,20 @@ public class BuildingServiceImpl implements IBuildingService {
         buildingDTO.setRentArea(buildingEntity.getRentAreas().stream().map(i ->Long.toString(i.getValue())).collect(Collectors.joining(",")));
         return buildingDTO;
     }
+    private void saveThumbnail(BuildingDTO buildingDTO, BuildingEntity buildingEntity) {
+        String path = "/building/" + buildingDTO.getImageName();
+        if (null != buildingDTO.getImageBase64()) {
+            if (null != buildingEntity.getImage()) {
+                if (!path.equals(buildingEntity.getImage())) {
+                    File file = new File("C://home/office" + buildingEntity.getImage());
+                    file.delete();
+                }
+            }
+            byte[] bytes = Base64.decodeBase64(buildingDTO.getImageBase64().getBytes());
+            uploadFileUtils.writeOrUpdate(path, bytes);
+            buildingEntity.setImage(path);
+        }
+    }
+
 
 }

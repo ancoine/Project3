@@ -115,21 +115,22 @@
         <form:form modelAttribute="buildingEdit" class="form-horizontal" role="form" id="form-edit" action="/admin/building-edit" method="GET" >
             <form:hidden path="id"/>
           <div class="form-group">
-            <label class="col-xs-3 control-label">Tên Tòa Nhà</label>
+            <label class="col-xs-3 control-label">Tên Tòa Nhà(*)</label>
             <div class="col-xs-9">
               <form:input  class="form-control" path="name"/>
-              <span class="error-message" style="color: red" id="name"></span>
+              <span class="error-message" style="color: red" id="nameError"></span>
             </div>
           </div>
           <div class="form-group">
-            <label class="col-xs-3 control-label">Quận</label>
+            <label class="col-xs-3 control-label">Quận(*)</label>
             <div class="col-xs-2">
              <form:select path="district"  class="form-control">
                                                     <form:option value=""> Chọn Quận </form:option>
                                                     <form:options items="${district}"/>
-                                                     <span class="error-message" style="color: red" id="district"></span>
+
 
              </form:select>
+              <span class="error-message" style="color: red" id="districtError"></span>
 
             </div>
           </div>
@@ -161,10 +162,10 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="col-xs-3 control-label">Diện Tích Sàn</label>
+            <label class="col-xs-3 control-label">Diện Tích Sàn(*)</label>
             <div class="col-xs-9">
                 <form:input path="floorArea" class="form-control"/>
-                 <span class="error-message" style="color: red" id="floorArea"></span>
+                 <span class="error-message" style="color: red" id="floorAreaError"></span>
 
             </div>
           </div>
@@ -183,28 +184,29 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="col-xs-3 control-label">Diện Tích Thuê</label>
+            <label class="col-xs-3 control-label">Diện Tích Thuê(*)</label>
             <div class="col-xs-9">
 
                <form:input path="rentArea" class="form-control"/>
-               <span class="error-message" style="color: red" id="rentArea"></span>
+               <span class="error-message" style="color: red" id="rentAreaError"></span>
 
             </div>
           </div>
           <div class="form-group">
-            <label class="col-xs-3 control-label">Giá Thuê</label>
+            <label class="col-xs-3 control-label">Giá Thuê(*)</label>
             <div class="col-xs-9">
 
               <form:input path="rentPrice" class="form-control"/>
-               <span class="error-message" style="color: red" id="rentPrice"></span>
+               <span class="error-message" style="color: red" id="rentPriceError"></span>
 
             </div>
           </div>
           <div class="form-group">
-            <label class="col-xs-3 control-label">Mô Tả Giá</label>
+            <label class="col-xs-3 control-label">Mô Tả Giá(*)</label>
             <div class="col-xs-9">
 
               <form:input path="rentPriceDescription" class="form-control"/>
+               <span class="error-message" style="color: red" id="rentPriceDescriptionError"></span>
             </div>
           </div>
           <div class="form-group">
@@ -269,11 +271,11 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="col-xs-3 control-label">Thời Gian Thuê</label>
+            <label class="col-xs-3 control-label">Thời Gian Thuê(*)</label>
             <div class="col-xs-9">
 
               <form:input path="rentTime" class="form-control"/>
-
+               <span class="error-message" style="color: red" id="rentTimeError"></span>
             </div>
           </div>
           <div class="form-group">
@@ -323,15 +325,20 @@
 
             </div>
           </div>
-          <div class="form-group">
-            <label class="col-xs-3 control-label">Hình Đại Diện</label>
-            <div class="col-xs-9">
-
-              <form:input path="image" class="form-control"/>
-
-            </div>
-          </div>
-          <div class="form-group">
+         <div class="form-group">
+    <label class="col-xs-3 control-label">Hình đại diện</label>
+    <input class="" type="file" id="uploadImage"/>
+    <div class="col-xs-9">
+        <c:if test="${not empty model.image}">
+            <c:set var="imagePath" value="/repository${model.image}"/>
+            <img src="${imagePath}" id="viewImage" width="300px" height="300px" style="margin-top: 50px">
+        </c:if>
+        <c:if test="${empty model.image}">
+            <img src="/admin/image/default.png" id="viewImage" width="300px" height="300px">
+        </c:if>
+    </div>
+</div>
+         <div class="form-group">
             <label class="col-xs-3 control-label"></label>
             <div class="col-xs-9">
             <c:if test="${not empty buildingEdit.id}">
@@ -347,6 +354,8 @@
 
             </div>
           </div>
+          </div>
+
         </form:form>
       </div>
     </div>
@@ -355,48 +364,112 @@
 
 
 <script>
-  function validateDataBuilding(json){
-    $('.error-message').remove();
-    if(json['name'] == ''){
-      $("#name").after('<span style="color: red"> Tên Tòa Nhà Không Được Để Trống</span>')
-    }
-    if(json['district'] == ''){
-      $("#district").after('<span style="color: red"> Quận Không Được Để Trống</span>')
-    }
-    if (json['typeCode'].length === 0){
-      $("#typeCode").after('<span style="color: red"> Loại Tòa Nhà Không Được Để Trống</span>')
-    }
-    if (json['floorArea'].length === 0){
-      $("#typeCode").after('<span style="color: red"> Diện Tích Sàn Không Được Để Trống</span>')
-    }
-    if (json['rentArea'].length === 0){
-      $("#typeCode").after('<span style="color: red"> Diện Tích Thuê Không Được Để Trống</span>')
-    }
-    if (json['rentPrice'].length === 0){
-      $("#typeCode").after('<span style="color: red"> Giá Thuê Không Được Để Trống</span>')
+  var imageBase64 = '';
+  var imageName = '';
+
+  function validateDataBuilding(json) {
+    $('.error-message').text(''); // Xóa hết thông báo cũ
+    let isValid = true;
+
+    if (!json['name']) {
+      $('#nameError').text('Tên Tòa Nhà Không Được Để Trống');
+      isValid = false;
     }
 
+    if (!json['district']) {
+      $('#districtError').text('Quận Không Được Để Trống');
+      isValid = false;
+    }
+
+    if (!json['typeCode'] || json['typeCode'].length === 0) {
+      $('#typeCode').text('Loại Tòa Nhà Không Được Để Trống');
+      isValid = false;
+    }
+
+    if (!json['floorArea']) {
+      $('#floorAreaError').text('Diện Tích Sàn Không Được Để Trống');
+      isValid = false;
+    }
+
+    if (!json['rentArea']) {
+      $('#rentAreaError').text('Diện Tích Thuê Không Được Để Trống');
+      isValid = false;
+    }
+
+    if (!json['rentPrice']) {
+      $('#rentPriceError').text('Giá Thuê Không Được Để Trống');
+      isValid = false;
+    }
+    if (!json['rentPriceDescription']) {
+      $('#rentPriceDescriptionError').text('Mô Tả Giá Không Được Để Trống');
+      isValid = false;
+    }
+
+    if (!json['rentTime']) {
+      $('#rentTimeError').text('Thowfi Gian Thuê Không Được Để Trống');
+      isValid = false;
+    }
+
+    return isValid;
   }
 
-  $('#btnAddBuilding').click(function(){
+
+  $('#btnAddBuilding').click(function () {
     var formData = $('#form-edit').serializeArray();
     var json = {};
     var typeCode = [];
 
-    $.each(formData,function(i,it){
-      if(it.name != 'typeCode'){
-        json[it.name] = it.value;
-      } else {
-        typeCode.push(it.value);
+    $.each(formData, function (i, it) {
+      if (it.value !== '' && it.value !== null) {
+        if (it.name !== 'typeCode') {
+          json[it.name] = it.value;
+        } else {
+          typeCode.push(it.value);
+        }
       }
     });
 
     json['typeCode'] = typeCode;
+    $('#loading_image').show();
+
+    if (imageBase64 !== '') {
+      json['imageBase64'] = imageBase64;
+      json['imageName'] = imageName;
+    }
 
     console.log('Dữ liệu chuẩn bị gửi:', json);
-    validateDataBuilding(json);
+    var isValid = validateDataBuilding(json);
+    if (!isValid) {
+      $('#loading_image').hide();
+      return;
+    }
     addOrUpdateBuilding(json);
   });
+
+
+
+  $('#uploadImage').change(function (event) {
+    var reader = new FileReader();
+    var file = $(this)[0].files[0];
+    reader.onload = function(e){
+      imageBase64 = e.target.result;
+      imageName = file.name; // ten hinh khong dau, khoang cach. Dat theo format sau: a-b-c
+    };
+    reader.readAsDataURL(file);
+    openImage(this, "viewImage");
+  });
+
+
+  function openImage(input, imageView) {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        $('#' +imageView).attr('src', reader.result);
+      }
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
 
   function addOrUpdateBuilding(json){
     $.ajax({

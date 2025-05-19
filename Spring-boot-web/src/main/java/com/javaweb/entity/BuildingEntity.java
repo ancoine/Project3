@@ -45,6 +45,7 @@ public class BuildingEntity extends BaseEntity {
     private String brokeragefee;
     @Column(name="rentpricedescription")
     private String rentPriceDescription;
-
+    @Column(name="avatar")
+    private String image;
 
 }
