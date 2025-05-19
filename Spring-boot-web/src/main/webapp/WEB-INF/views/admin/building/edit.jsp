@@ -329,12 +329,12 @@
     <label class="col-xs-3 control-label">Hình đại diện</label>
     <input class="" type="file" id="uploadImage"/>
     <div class="col-xs-9">
-        <c:if test="${not empty model.image}">
-            <c:set var="imagePath" value="/repository${model.image}"/>
+        <c:if test="${not empty buildingEdit.image}">
+            <c:set var="imagePath" value="/repository${buildingEdit.image}"/>
             <img src="${imagePath}" id="viewImage" width="300px" height="300px" style="margin-top: 50px">
         </c:if>
-        <c:if test="${empty model.image}">
-            <img src="/admin/image/default.png" id="viewImage" width="300px" height="300px">
+        <c:if test="${empty buildingEdit.image}">
+            <img src="/common/admin/image/th.jpg" id="viewImage" width="300px" height="300px">
         </c:if>
     </div>
 </div>
@@ -414,28 +414,31 @@
   }
 
 
-  $('#btnAddBuilding').click(function () {
+  $('#btnAddBuilding').click(function (e) {
+    e.preventDefault();
     var formData = $('#form-edit').serializeArray();
     var json = {};
     var typeCode = [];
 
     $.each(formData, function (i, it) {
-      if (it.value !== '' && it.value !== null) {
-        if (it.name !== 'typeCode') {
-          json[it.name] = it.value;
-        } else {
+      if ('' !== it.value && null != it.value) {
+        if (it.name == 'typeCode') {
           typeCode.push(it.value);
+        } else {
+         json['' + it.name + ''] = it.value;
         }
+      }
+      if (imageBase64 !== '') {
+        json['imageBase64'] = imageBase64;
+        json['imageName'] = imageName;
       }
     });
 
     json['typeCode'] = typeCode;
+    var buildingId = json['id'];
     $('#loading_image').show();
 
-    if (imageBase64 !== '') {
-      json['imageBase64'] = imageBase64;
-      json['imageName'] = imageName;
-    }
+
 
     console.log('Dữ liệu chuẩn bị gửi:', json);
     var isValid = validateDataBuilding(json);
@@ -444,6 +447,7 @@
       return;
     }
     addOrUpdateBuilding(json);
+    openImage(this, "viewImage");
   });
 
 

@@ -3,6 +3,7 @@ package com.javaweb.converter;
 import com.javaweb.entity.BuildingEntity;
 import com.javaweb.model.dto.BuildingDTO;
 import com.javaweb.model.response.BuildingSearchResponse;
+import com.javaweb.repository.BuildingRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,8 @@ import com.javaweb.enums.districtCode;
 public class BuildingConverter {
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private BuildingRepository buildingRepository;
 
     //dto => entity
     public BuildingDTO toBuildingDTO(BuildingEntity buildingEntity) {
@@ -32,6 +35,7 @@ public class BuildingConverter {
             result.setTypeCode(typeCodeList);
         } else {
             result.setTypeCode(Collections.emptyList());
+            result.setImage(buildingEntity.getImage());
         }
 
         return result;
@@ -43,6 +47,10 @@ public class BuildingConverter {
         BuildingEntity results = modelMapper.map(building, BuildingEntity.class);
         String typeCode = building.getTypeCode().stream().map(x -> x.toString()).collect(Collectors.joining(","));
         results.setTypeCode(typeCode);
+        if(building.getId() !=null){
+            BuildingEntity buildingImg = buildingRepository.findById(building.getId()).get();
+            results.setImage(buildingImg.getImage());
+        }
         return results;
     }
 

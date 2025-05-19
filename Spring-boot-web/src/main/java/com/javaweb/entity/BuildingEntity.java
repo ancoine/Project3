@@ -41,11 +41,34 @@ public class BuildingEntity extends BaseEntity {
     private String managerphone;
     @Column(name = "servicefee")
     private String servicefee;
-    @Column(name = "brokeragefee")
-    private String brokeragefee;
+
     @Column(name="rentpricedescription")
     private String rentPriceDescription;
     @Column(name="avatar")
     private String image;
+    @Column(name="renttime")
+    private String rentTime;
+    @Column(name="structure")
+    private String structure;
+    @Column(name="carfee")
+    private String carFee;
+    @Column(name="motofee")
+    private String motoFee;
+    @Column(name="overtimefee")
+    private String overtimeFee;
+    @Column(name="waterfee")
+    private String waterFee;
+    @Column(name="electricityfee")
+    private String electricityFee;
+    @Column(name="deposit")
+    private String deposit;
+    @Column(name="payment")
+    private String payment;
+    @Column(name="decorationtime")
+    private String decorationTime;
+    @Column(name="note")
+    private String note;
+    @Column(name = "brokeragefee")
+    private Integer brokerageFee;
 
 }
