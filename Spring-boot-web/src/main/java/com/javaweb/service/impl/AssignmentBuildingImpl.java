@@ -36,14 +36,16 @@ public class AssignmentBuildingImpl implements IAssignmentBuildingService {
 
                 }
                 List<UserEntity> newStaffAssignmentBuilding = userRepository.findByIdIn(assignmentBuildingDTO.getStaffs());
-                assignmentBuildingRepository.deleteByBuildingEntity(buildingEntity);
-
-                for(UserEntity userEntity : newStaffAssignmentBuilding){
-                    AssignmentBuildingEntity assignmentBuildingEntity = new AssignmentBuildingEntity();
-                    assignmentBuildingEntity.setBuildingEntity(buildingEntity);
-                    assignmentBuildingEntity.setStaff(userEntity);
-                    assignmentBuildingRepository.save(assignmentBuildingEntity);
-                }
+//                assignmentBuildingRepository.deleteByBuildingEntity(buildingEntity);
+//
+//                for(UserEntity userEntity : newStaffAssignmentBuilding){
+//                    AssignmentBuildingEntity assignmentBuildingEntity = new AssignmentBuildingEntity();
+//                    assignmentBuildingEntity.setBuildingEntity(buildingEntity);
+//                    assignmentBuildingEntity.setStaff(userEntity);
+//                    assignmentBuildingRepository.save(assignmentBuildingEntity);
+//                }
+                  buildingEntity.setStaffs(newStaffAssignmentBuilding);
+                  buildingRepository.save(buildingEntity);
 
     }
 }

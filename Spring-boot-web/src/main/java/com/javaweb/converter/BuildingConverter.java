@@ -42,8 +42,6 @@ public class BuildingConverter {
     }
     // entity => dto
     public BuildingEntity toBuildingEntity(BuildingDTO building) {
-
-        System.out.println("DEBUG - buildingDTO id = " + building.getId());
         BuildingEntity results = modelMapper.map(building, BuildingEntity.class);
         String typeCode = building.getTypeCode().stream().map(x -> x.toString()).collect(Collectors.joining(","));
         results.setTypeCode(typeCode);

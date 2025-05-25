@@ -4,20 +4,23 @@ import com.javaweb.builder.BuildingSearchBuilder;
 import com.javaweb.entity.BuildingEntity;
 import com.javaweb.repository.custom.BuildingRepositoryCustom;
 import com.javaweb.utils.NumberUtil;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import org.springframework.data.domain.Pageable;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public class BuildingRepositoryImpl implements BuildingRepositoryCustom {
+public  class BuildingRepositoryImpl implements BuildingRepositoryCustom {
     @PersistenceContext
     private EntityManager entityManager;
+     String countTotalItem;
     private void sqlJoin(BuildingSearchBuilder buildingSearchBuilder, StringBuilder join) {
 
         if (buildingSearchBuilder.getStaffId() != null) {
@@ -87,20 +90,33 @@ public class BuildingRepositoryImpl implements BuildingRepositoryCustom {
 
 
     }
+
     @Override
-    public List<BuildingEntity> findAll(BuildingSearchBuilder buildingSearchBuilder) {
-        StringBuilder sql = new StringBuilder("SELECT b.* FROM building b ");
+    public List<BuildingEntity> findAll(BuildingSearchBuilder buildingSearchBuilder, Pageable pageable) {
+        StringBuilder sql = new StringBuilder("SELECT DISTINCT b.* FROM building b ");
         sqlJoin(buildingSearchBuilder, sql);
         StringBuilder where = new StringBuilder(" WHERE 1=1 ");
 
         sqlWhereNomal(buildingSearchBuilder, where);
         sqlWhereSpecial(buildingSearchBuilder, where);
-        sql.append(where)
-
-                .append(" ORDER BY b.createdDate DESC ");
-
+        sql.append(where).append(" ORDER BY b.createdDate DESC ");
+        // toog so toa nha
+        countTotalItem = sql.toString();
+       sql.append(" LIMIT ").append(pageable.getPageSize()).append("\n")
+                .append(" OFFSET ").append(pageable.getOffset());
+        System.out.println("Final query: " + sql.toString());
         Query query = entityManager.createNativeQuery(sql.toString(), BuildingEntity.class);
+
+
         return query.getResultList();
     }
+    @Override
+    public int countTotalItem() {
+        String sql = countTotalItem;
+        Query query = entityManager.createNativeQuery(sql.toString());
+        return query.getResultList().size();
     }
+
+
+}
 

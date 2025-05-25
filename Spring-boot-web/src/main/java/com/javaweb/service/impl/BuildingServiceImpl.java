@@ -5,6 +5,7 @@ import com.javaweb.converter.BuildingConverter;
 import com.javaweb.converter.BuildingSearchBuilderConverter;
 import com.javaweb.entity.BuildingEntity;
 import com.javaweb.entity.RentAreaEntity;
+import com.javaweb.exception.ServiceException;
 import com.javaweb.utils.UploadFileUtils;
 import com.javaweb.entity.AssignmentBuildingEntity;
 import com.javaweb.entity.UserEntity;
@@ -21,12 +22,14 @@ import com.javaweb.service.IBuildingService;
 import org.apache.catalina.User;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,9 +51,9 @@ public class BuildingServiceImpl implements IBuildingService {
 
 
     @Override
-    public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest) {
+    public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest, Pageable pageable) {
         BuildingSearchBuilder buildingSearchBuilder = builderConverter.toBuildingSearchBuilder(buildingSearchRequest);
-        List<BuildingEntity> buildingEntities = buildingRepository.findAll(buildingSearchBuilder);
+        List<BuildingEntity> buildingEntities = buildingRepository.findAll(buildingSearchBuilder, pageable);
 
         List<BuildingSearchResponse> result = new ArrayList<>();
         for (BuildingEntity it : buildingEntities) {
@@ -60,31 +63,25 @@ public class BuildingServiceImpl implements IBuildingService {
         return result;
     }
 
+
     @Override
     public BuildingDTO createOrUpdateBuilding(BuildingDTO buildingDTO) {
         BuildingEntity buildingEntity = buildingConverter.toBuildingEntity(buildingDTO);
         saveThumbnail(buildingDTO,buildingEntity);
-        buildingEntity = buildingRepository.save(buildingEntity);
-        buildingEntity.getId();
-        if (buildingEntity.getId() != null) {
-            // Xóa rentArea theo buildingId
-            rentAreaRepository.deleteByBuildingEntity(buildingEntity);
-        }
         List<RentAreaEntity> rentAreaEntities = new ArrayList<>();
-
         if (buildingDTO.getRentArea() != null && !buildingDTO.getRentArea().trim().isEmpty()) {
             List<String> rentAreaValues = Arrays.stream(buildingDTO.getRentArea()
                             .trim()
                             .split("\\s*,\\s*")) // tách theo dấu phẩy, có thể có khoảng trắng 2 bên
                     .collect(Collectors.toList());
-
             for (String rentAreaValue : rentAreaValues) {
                 RentAreaEntity rentAreaEntity = new RentAreaEntity();
                 rentAreaEntity.setBuildingEntity(buildingEntity);
                 rentAreaEntity.setValue(Long.parseLong(rentAreaValue));
                 rentAreaEntities.add(rentAreaEntity);
             }
-            rentAreaRepository.saveAll(rentAreaEntities);
+            buildingEntity.setRentAreas(rentAreaEntities);
+            buildingRepository.save(buildingEntity);
         }
         return buildingConverter.toBuildingDTO(buildingEntity);
     }
@@ -92,8 +89,6 @@ public class BuildingServiceImpl implements IBuildingService {
 
     @Override
     public void deleteBuilding(List<Long> ids) {
-       rentAreaRepository.deleteByBuildingEntity_IdIn(ids);
-       assignmentBuildingRepository.deleteByBuildingEntity_IdIn(ids);
        buildingRepository.deleteByIdIn(ids);
     }
 
@@ -107,6 +102,12 @@ public class BuildingServiceImpl implements IBuildingService {
         buildingDTO.setRentArea(buildingEntity.getRentAreas().stream().map(i ->Long.toString(i.getValue())).collect(Collectors.joining(",")));
         return buildingDTO;
     }
+
+    @Override
+    public int countTotalItem() {
+        return buildingRepository.countTotalItem();
+    }
+
     private void saveThumbnail(BuildingDTO buildingDTO, BuildingEntity buildingEntity) {
         String path = "/building/" + buildingDTO.getImageName();
         if (null != buildingDTO.getImageBase64()) {
