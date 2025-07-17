@@ -2,7 +2,7 @@ package com.javaweb.service.impl;
 
 import com.javaweb.constant.SystemConstant;
 import com.javaweb.converter.UserConverter;
-import com.javaweb.entity.AssignmentBuildingEntity;
+import com.javaweb.entity.BuildingEntity;
 import com.javaweb.model.dto.PasswordDTO;
 import com.javaweb.model.dto.UserDTO;
 import com.javaweb.entity.RoleEntity;
@@ -103,18 +103,27 @@ public class UserService implements IUserService {
     public List<StaffResponseDTO> findStaffByBuildingId(long buildingId) {
         List<StaffResponseDTO> results = new ArrayList<>();
 
-        List<UserEntity> allStaffs = userRepository.findByStatusAndRoles_Code(1,"STAFF");
+        // Lấy tất cả nhân viên có status = 1 và role là STAFF
+        List<UserEntity> allStaffs = userRepository.findByStatusAndRoles_Code(1, "STAFF");
 
-      List<AssignmentBuildingEntity> assignmentBuildingEntities = assignmentBuildingRepository.findByBuildingEntity_Id(buildingId);
+        // Lấy ra building theo ID
+        BuildingEntity building = buildingRepository.findById(buildingId).orElse(null);
 
-      List<UserEntity> buildingStaffs = assignmentBuildingEntities.stream().map(i ->i.getStaff()).collect(Collectors.toList());
+        // Nếu không tìm thấy building thì trả về danh sách rỗng
+        if (building == null) {
+            return results;
+        }
 
-      for(UserEntity userEntity : allStaffs) {
-          StaffResponseDTO staffResponseDTO = userConverter.convertToStaffResponseDto(userEntity);
-          staffResponseDTO.setChecked(buildingStaffs.contains(userEntity) ? "Checked" : "");
+        // Lấy danh sách nhân viên đã được phân công cho tòa nhà này
+        List<UserEntity> buildingStaffs = building.getStaff();
 
-          results.add(staffResponseDTO);
-      }
+        // Duyệt toàn bộ nhân viên để đánh dấu "Checked" nếu đã được phân công
+        for (UserEntity userEntity : allStaffs) {
+            StaffResponseDTO staffResponseDTO = userConverter.convertToStaffResponseDto(userEntity);
+            staffResponseDTO.setChecked(buildingStaffs.contains(userEntity) ? "Checked" : "");
+            results.add(staffResponseDTO);
+        }
+
         return results;
     }
 

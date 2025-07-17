@@ -1,9 +1,7 @@
 package com.javaweb.service.impl;
 
-import com.javaweb.entity.AssignmentBuildingEntity;
 import com.javaweb.entity.BuildingEntity;
 import com.javaweb.entity.UserEntity;
-import com.javaweb.exception.ServiceException;
 import com.javaweb.model.dto.AssignmentBuildingDTO;
 import com.javaweb.repository.AssignmentBuildingRepository;
 import com.javaweb.repository.BuildingRepository;
@@ -36,15 +34,7 @@ public class AssignmentBuildingImpl implements IAssignmentBuildingService {
 
                 }
                 List<UserEntity> newStaffAssignmentBuilding = userRepository.findByIdIn(assignmentBuildingDTO.getStaffs());
-//                assignmentBuildingRepository.deleteByBuildingEntity(buildingEntity);
-//
-//                for(UserEntity userEntity : newStaffAssignmentBuilding){
-//                    AssignmentBuildingEntity assignmentBuildingEntity = new AssignmentBuildingEntity();
-//                    assignmentBuildingEntity.setBuildingEntity(buildingEntity);
-//                    assignmentBuildingEntity.setStaff(userEntity);
-//                    assignmentBuildingRepository.save(assignmentBuildingEntity);
-//                }
-                  buildingEntity.setStaffs(newStaffAssignmentBuilding);
+                  buildingEntity.setStaff(newStaffAssignmentBuilding);
                   buildingRepository.save(buildingEntity);
 
     }

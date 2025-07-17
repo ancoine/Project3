@@ -13,7 +13,9 @@ import com.javaweb.model.response.StaffResponseDTO;
 import com.javaweb.service.IBuildingService;
 import com.javaweb.service.IUserService;
 import com.javaweb.utils.DisplayTagUtils;
+import com.javaweb.utils.MessageUtils;
 import javassist.NotFoundException;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
@@ -26,31 +28,32 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import com.javaweb.utils.MessageUtils;
 @Controller(value="buildingControllerOfAdmin")
 public class BuildingController {
   @Autowired
   private IUserService userService;
   @Autowired
   private IBuildingService buildingService;
+    @Autowired
+    private MessageUtils messageUtil;
     @GetMapping("/admin/building-list")
     public ModelAndView getAllBuilding(@ModelAttribute BuildingSearchRequest buildingSearchRequest , HttpServletRequest request) {
-        DisplayTagUtils.of(request,buildingSearchRequest);
         ModelAndView modelAndView = new ModelAndView("admin/building/list");
         modelAndView.addObject("modelSearch",buildingSearchRequest);
         modelAndView.addObject("staffs",userService.getStaff());
         modelAndView.addObject("district", districtCode.getDistrict());
         modelAndView.addObject("typeCode", buildingType.getType());
+        DisplayTagUtils.of(request,buildingSearchRequest);
         // project 2
-        List<BuildingSearchResponse> buildingSearchResponses = buildingService.findAll(buildingSearchRequest, PageRequest.of(buildingSearchRequest.getPage() - 1,buildingSearchRequest.getMaxPageItems()));
-        System.out.println(" Page: " + buildingSearchRequest.getPage());
-        System.out.println("Max Items: " + buildingSearchRequest.getMaxPageItems());
-        System.out.println(" Tổng số tòa nhà: " + buildingSearchResponses.size());
-        System.out.println(" Tổng bản ghi: " + buildingService.countTotalItem());
+        List<BuildingSearchResponse> buildingSearchResponses = buildingService.findAll(buildingSearchRequest,
+                PageRequest.of(buildingSearchRequest.getPage() - 1, buildingSearchRequest.getMaxPageItems()));
         buildingSearchRequest.setListResult(buildingSearchResponses);
-        buildingSearchRequest.setTotalItem(buildingService.countTotalItem());
-        modelAndView.addObject("buildings", buildingSearchResponses);
+        buildingSearchRequest.setTotalItem(buildingService.countTotalItem(buildingSearchRequest));
         modelAndView.addObject(SystemConstant.MODEL,buildingSearchRequest);
+        initMessageResponse(modelAndView, request);
         return modelAndView;
     }
     @GetMapping("/admin/building-edit")
@@ -74,6 +77,14 @@ public class BuildingController {
         modelAndView.addObject("district", districtCode.getDistrict());
         modelAndView.addObject("typeCode", buildingType.getType());
         return modelAndView;
+    }
+    private void initMessageResponse(ModelAndView mav, HttpServletRequest request) {
+        String message = request.getParameter("message");
+        if (message != null && StringUtils.isNotEmpty(message)) {
+            Map<String, String> messageMap = messageUtil.getMessage(message);
+            mav.addObject(SystemConstant.ALERT, messageMap.get(SystemConstant.ALERT));
+            mav.addObject(SystemConstant.MESSAGE_RESPONSE, messageMap.get(SystemConstant.MESSAGE_RESPONSE));
+        }
     }
 
 }

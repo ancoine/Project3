@@ -2,6 +2,7 @@ package com.javaweb.repository.custom.impl;
 
 import com.javaweb.builder.BuildingSearchBuilder;
 import com.javaweb.entity.BuildingEntity;
+import com.javaweb.model.request.BuildingSearchRequest;
 import com.javaweb.repository.custom.BuildingRepositoryCustom;
 import com.javaweb.utils.NumberUtil;
 import org.springframework.data.domain.PageRequest;
@@ -110,13 +111,13 @@ public  class BuildingRepositoryImpl implements BuildingRepositoryCustom {
 
         return query.getResultList();
     }
+
     @Override
-    public int countTotalItem() {
+    public int countTotalItem(BuildingSearchRequest buildingSearchRequest) {
         String sql = countTotalItem;
         Query query = entityManager.createNativeQuery(sql.toString());
         return query.getResultList().size();
     }
-
 
 }
 

@@ -5,21 +5,14 @@ import com.javaweb.converter.BuildingConverter;
 import com.javaweb.converter.BuildingSearchBuilderConverter;
 import com.javaweb.entity.BuildingEntity;
 import com.javaweb.entity.RentAreaEntity;
-import com.javaweb.exception.ServiceException;
 import com.javaweb.utils.UploadFileUtils;
-import com.javaweb.entity.AssignmentBuildingEntity;
-import com.javaweb.entity.UserEntity;
-import com.javaweb.model.dto.AssignmentBuildingDTO;
 import com.javaweb.model.dto.BuildingDTO;
 import com.javaweb.model.request.BuildingSearchRequest;
 import com.javaweb.model.response.BuildingSearchResponse;
-import com.javaweb.model.response.ResponseDTO;
 import com.javaweb.repository.AssignmentBuildingRepository;
 import com.javaweb.repository.BuildingRepository;
 import com.javaweb.repository.RentAreaRepository;
-import com.javaweb.repository.UserRepository;
 import com.javaweb.service.IBuildingService;
-import org.apache.catalina.User;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +22,6 @@ import javax.transaction.Transactional;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +40,6 @@ public class BuildingServiceImpl implements IBuildingService {
     private RentAreaRepository rentAreaRepository;
     @Autowired
     private UploadFileUtils uploadFileUtils;
-
 
     @Override
     public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest, Pageable pageable) {
@@ -104,8 +95,8 @@ public class BuildingServiceImpl implements IBuildingService {
     }
 
     @Override
-    public int countTotalItem() {
-        return buildingRepository.countTotalItem();
+    public int countTotalItem(BuildingSearchRequest buildingSearchRequest) {
+        return buildingRepository.countTotalItem(buildingSearchRequest);
     }
 
     private void saveThumbnail(BuildingDTO buildingDTO, BuildingEntity buildingEntity) {
